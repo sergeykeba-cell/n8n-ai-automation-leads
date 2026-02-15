@@ -1,0 +1,270 @@
+{
+  "name": "AI-Аналіз лидів з CSV → Telegram + збереження (Gemini 2.5-flash)",
+  "nodes": [
+    {
+      "parameters": {
+        "cronExpression": "0 9 * * *"
+      },
+      "name": "Schedule Trigger1",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "fileSelector": "/home/node/.n8n-files/leads.csv",
+        "binaryPropertyName": "data",
+        "mimeType": "text/csv"
+      },
+      "name": "Read/Write Files from Disk",
+      "type": "n8n-nodes-base.readBinaryFile",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "binaryProperty": "data",
+        "includeHeaders": true,
+        "outputFormat": "json",
+        "delimiter": ","
+      },
+      "name": "Spreadsheet File",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "reset": true,
+        "batchInterval": 1000
+      },
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=ВАШ_API_КЛЮЧ_GEMINI",
+        "headers": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "contents",
+              "value": "[{\"parts\":[{\"text\":\"Ти — досвідчений менеджер з продажів у CRM. Оціни пріоритет ліда за шкалою: високий, середній, низький.\\n\\nКритерії високого пріоритету: статус містить \\\"горячий\\\" або \\\"високий\\\", є заповнений телефон, джерело \\\"дзвінок\\\", \\\"реферал\\\" або \\\"facebook\\\".\\n\\nВерни ТІЛЬКИ валідний JSON без зайвого тексту:\\n{\\\"priority\\\": \\\"високий\\\" або \\\"середній\\\" або \\\"низький\\\", \\\"recommendation\\\": \\\"1-2 речення по дії\\\"}\\n\\nДані ліда:\\nІм'я: {{ $json.name || \\\"не вказано\\\" }}\\nEmail: {{ $json.email || \\\"не вказано\\\" }}\\nТелефон: {{ $json.phone || \\\"не вказано\\\" }}\\nСтатус: {{ $json.status || \\\"не вказано\\\" }}\\nДжерело: {{ $json.source || \\\"не вказано\\\" }}\"}],\"role\":\"user\"}]"
+            },
+            {
+              "name": "generationConfig",
+              "value": "{\"temperature\":0.3,\"maxOutputTokens\":150,\"responseMimeType\":\"application/json\"}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "HTTP Request (Gemini 2.5-flash)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "priority",
+              "value": "{{ JSON.parse($json.candidates[0].content.parts[0].text).priority }}"
+            },
+            {
+              "name": "recommendation",
+              "value": "{{ JSON.parse($json.candidates[0].content.parts[0].text).recommendation }}"
+            }
+          ]
+        },
+        "includeOtherInputFields": true
+      },
+      "name": "Edit Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "{{ $json.priority }}",
+              "operation": "equals",
+              "value2": "високий"
+            }
+          ]
+        }
+      },
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "credentials": {
+          "telegramApi": {
+            "id": "твой_id_credential",
+            "name": "Telegram Bot"
+          }
+        },
+        "chatId": "твой_chat_id",
+        "text": "🔥 Горячий лид!\nІм'я: {{ $json.name }}\nEmail: {{ $json.email }}\nТелефон: {{ $json.phone }}\nСтатус: {{ $json.status }}\nДжерело: {{ $json.source }}\nРекомендація: {{ $json.recommendation }}",
+        "options": {}
+      },
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [1780, 240]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "outputOrder": "input1First"
+      },
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [1780, 360]
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "inputFormat": "json",
+        "binaryPropertyName": "data",
+        "includeHeaders": true,
+        "mimeType": "text/csv"
+      },
+      "name": "Spreadsheet File1",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "filePath": "/home/node/.n8n-files/leads_analyzed_{{ $dateTime.now().format('yyyy-MM-dd') }}.csv",
+        "binaryPropertyName": "data",
+        "mimeType": "text/csv"
+      },
+      "name": "Write Binary File",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        {
+          "node": "Read/Write Files from Disk",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        {
+          "node": "Spreadsheet File",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Spreadsheet File": {
+      "main": [
+        {
+          "node": "Loop Over Items",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        {
+          "node": "HTTP Request",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        {
+          "node": "Edit Fields",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        {
+          "node": "If",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "If": {
+      "main": [
+        {
+          "node": "Telegram",
+          "type": "main",
+          "index": 0
+        },
+        {
+          "node": "Merge",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Telegram": {
+      "main": [
+        {
+          "node": "Merge",
+          "type": "main",
+          "index": 1
+        }
+      ]
+    },
+    "Merge": {
+      "main": [
+        {
+          "node": "Spreadsheet File1",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    },
+    "Spreadsheet File1": {
+      "main": [
+        {
+          "node": "Write Binary File",
+          "type": "main",
+          "index": 0
+        }
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}
