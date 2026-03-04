@@ -1,79 +1,32 @@
-AI-Driven Lead Qualification System 🚀
-An intelligent automation pipeline designed to eliminate manual lead sorting. This system processes raw lead data, evaluates potential business value using LLMs (Llama 3 via Groq), and delivers actionable insights directly to sales teams.
+# AI-Powered Lead Qualification
 
-🌟 Key Features
-Automated Lead Scoring: AI analyzes lead profiles and assigns a priority score (1-10).
+An intelligent automation pipeline that scores and routes sales leads using AI, built with n8n and Python.
 
-Instant Processing: Leverages Groq LPU for ultra-fast inference (sub-second response times).
+## Problem
+Sales teams waste hours manually sorting through raw leads. This system automates the process, so they can focus on the best opportunities immediately.
 
-Multi-Channel Integration: Seamless data flow between CSV files, Google Sheets, and Telegram.
+## Solution
+- Ingest lead data from CSV files.
+- Use Groq (or Gemini) to analyze each lead and assign a relevance score.
+- High‑scoring leads are sent instantly to a Telegram chat.
+- Low‑scoring leads are stored for later review.
 
-Custom AI Insights: Generates personalized recommendations for sales follow-ups.
+## Components
+- **n8n workflow** – orchestrates the pipeline, triggers on new CSV upload.
+- **Python script** – handles data cleaning and AI prompt engineering.
+- **Telegram bot** – delivers real‑time alerts.
 
-🛠 Tech Stack
-Orchestration: n8n (Low-code workflow automation)
+## Tech Stack
+- n8n (workflow automation)
+- Python (pandas, requests)
+- Groq / Gemini API
+- Telegram Bot API
 
-AI Engine: Groq API (Llama 3 / Mixtral)
-
-Language: Python 3.11 (Custom data processing)
-
-Communication: Telegram Bot API
-
-📐 Workflow Architecture
-Data Ingestion: New leads are triggered via Webhook or fetched from a CSV/Google Sheet.
-
-Context Injection: Python scripts clean and format the data for the LLM.
-
-AI Analysis: Groq processes the lead information based on custom Prompt Engineering templates.
-
-Distribution: High-priority leads are sent to Telegram; all logs are saved to a CRM or Database.
-
-🚀 Getting Started
-Prerequisites
-Python 3.11+
-
-n8n (Desktop or Cloud version)
-
-API Keys for Groq and Telegram (BotFather)
-
-Installation
-Clone the repo:
-
-Bash
-git clone https://github.com/sergeykeba-cell/n8n-ai-automation-leads.git
-cd n8n-ai-automation-leads
-Set up Virtual Environment:
-
-Bash
-python3.11 -m venv .venv
-source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
-pip install -r requirements.txt
-Configure Environment Variables:
-Create a .env file:
-
-Фрагмент кода
-GROQ_API_KEY=your_key_here
-TELEGRAM_BOT_TOKEN=your_token_here
-Importing n8n Workflow
-Open n8n.
-
-Import the automation/workflow_leads.json file.
-
-Update the credentials for Groq and Telegram nodes.
-
-🔒 Security Note
-This repository contains no real user data. All CSV files in data/ are samples generated for demonstration purposes. Never commit your .env file or real lead databases to GitHub.
-
-👨‍💻 Author
-Sergey Keba
-
-LinkedIn: Junior AI Automation Engineer
-
-Telegram: @SergieyKeba
-
-Why this works:
-Badges: They make the repo look "official."
-
-Clear Value: You explain why this matters (saving time, fast processing).
-
-Security Mention: Mentioning you don't leak data shows you're ready for a corporate environment.
+## Setup
+1. Clone this repo:  
+   `git clone https://github.com/sergeykeba-cell/n8n-ai-automation-leads.git`
+2. Install Python dependencies:  
+   `pip install pandas requests python-telegram-bot`
+3. Configure your API keys in `.env` (see `.env.example`).
+4. Import the n8n workflow from `workflow.json`.
+5. Upload a CSV file to the designated folder – the pipeline will run automatically.
