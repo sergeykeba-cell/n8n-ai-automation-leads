@@ -70,3 +70,10 @@ Sergey Keba
 LinkedIn: Junior AI Automation Engineer
 
 Telegram: @SergieyKeba
+
+Why this works:
+Badges: They make the repo look "official."
+
+Clear Value: You explain why this matters (saving time, fast processing).
+
+Security Mention: Mentioning you don't leak data shows you're ready for a corporate environment.
