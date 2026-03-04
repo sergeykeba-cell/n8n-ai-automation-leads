@@ -1,52 +1,72 @@
-# AI-Аналізатор лидів: повний цикл автоматизації (n8n + gemini-2.5-flash)
+AI-Driven Lead Qualification System 🚀
+An intelligent automation pipeline designed to eliminate manual lead sorting. This system processes raw lead data, evaluates potential business value using LLMs (Llama 3 via Groq), and delivers actionable insights directly to sales teams.
 
-### Автоматизація обробки лидів з CSV-файлу для бізнесу (CRM, продажі):  
-- Щоденний запуск за розкладом  
-- Читання CSV-файлу  
-- Парсинг у таблицю  
-- Цикл по кожному лиду  
-- AI-аналіз (Gemini text model): приоритет + рекомендація  
-- Фільтр на "високий" приоритет  
-- Уведомлення в Telegram (тільки для горячих лидів)  
-- Об'єднання всіх лидів  
-- Збереження оновленого CSV з приоритетами та рекомендаціями
+🌟 Key Features
+Automated Lead Scoring: AI analyzes lead profiles and assigns a priority score (1-10).
 
-### Технології
+Instant Processing: Leverages Groq LPU for ultra-fast inference (sub-second response times).
 
-- n8n (workflow, цикл, інтеграції)  
-- AI
- (gemini-2.5-flash)  
-- Telegram Bot  
-- Spreadsheet File (парсинг CSV)  
-- Merge, Write Binary File  
-- JSON Parsing в Edit Fields  
+Multi-Channel Integration: Seamless data flow between CSV files, Google Sheets, and Telegram.
 
-### Як це працює (схема)
-Schedule Trigger → Read CSV → Parse CSV → Loop Over Items → Gemini text model → Edit Fields → If (priority = високий) → Telegram
-└─ Merge → Write CSV
+Custom AI Insights: Generates personalized recommendations for sales follow-ups.
 
-### Як запустити локально
+🛠 Tech Stack
+Orchestration: n8n (Low-code workflow automation)
 
-1. Запусти n8n в Docker:
-docker run -d 
---name n8n 
---restart unless-stopped 
--p 5678:5678 
--v ~/.n8n:/home/node/.n8n 
--v ~/n8n-files:/home/node/.n8n-files 
-n8nio/n8n
-text
-2. Скопіюй leads.csv в ~/n8n-files
-3. Відкрий http://localhost:5678 → імпортуй workflow (JSON нижче)
-4. Заміни ключ Gemini і Telegram Chat ID
-5. Execute Workflow → перевір Telegram і папку ~/n8n-files
+AI Engine: Groq API (Llama 3 / Mixtral)
 
-### Як імпортувати
+Language: Python 3.11 (Custom data processing)
 
-В n8n: Workflows → ... → Import from file → n8n-ai-automation-leads.json
-Після імпорту:
-Заміни ВАШ_API_КЛЮЧ_GEMINI на свій ключ (з https://aistudio.google.com/app/apikey)
-Налаштуй Telegram credential і chat_id
-Перевір шлях до файлу: /home/node/.n8n-files/leads.csv (якщо інший — зміни)
+Communication: Telegram Bot API
 
-Execute Workflow — цикл пройде по всім рядкам, Gemini проаналізує кожен лід, Telegram відправить тільки про "високий", Merge збереже всі, Write — оновлений CSV.
+📐 Workflow Architecture
+Data Ingestion: New leads are triggered via Webhook or fetched from a CSV/Google Sheet.
+
+Context Injection: Python scripts clean and format the data for the LLM.
+
+AI Analysis: Groq processes the lead information based on custom Prompt Engineering templates.
+
+Distribution: High-priority leads are sent to Telegram; all logs are saved to a CRM or Database.
+
+🚀 Getting Started
+Prerequisites
+Python 3.11+
+
+n8n (Desktop or Cloud version)
+
+API Keys for Groq and Telegram (BotFather)
+
+Installation
+Clone the repo:
+
+Bash
+git clone https://github.com/sergeykeba-cell/n8n-ai-automation-leads.git
+cd n8n-ai-automation-leads
+Set up Virtual Environment:
+
+Bash
+python3.11 -m venv .venv
+source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+pip install -r requirements.txt
+Configure Environment Variables:
+Create a .env file:
+
+Фрагмент кода
+GROQ_API_KEY=your_key_here
+TELEGRAM_BOT_TOKEN=your_token_here
+Importing n8n Workflow
+Open n8n.
+
+Import the automation/workflow_leads.json file.
+
+Update the credentials for Groq and Telegram nodes.
+
+🔒 Security Note
+This repository contains no real user data. All CSV files in data/ are samples generated for demonstration purposes. Never commit your .env file or real lead databases to GitHub.
+
+👨‍💻 Author
+Sergey Keba
+
+LinkedIn: Junior AI Automation Engineer
+
+Telegram: @SergieyKeba
