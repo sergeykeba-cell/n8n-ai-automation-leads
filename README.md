@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![n8n](https://img.shields.io/badge/built%20with-n8n-EA4B71?logo=n8n&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?logo=python&logoColor=white)
-![CI](https://img.shields.io/badge/CI-passing-brightgreen)
+![CI](https://github.com/sergeykeba-cell/n8n-ai-automation-leads/actions/workflows/ci.yml/badge.svg)
 ![Stars](https://img.shields.io/github/stars/sergeykeba-cell/n8n-ai-automation-leads?style=social)
 
 An intelligent automation pipeline that scores and routes sales leads using AI, built with **n8n** and **Python**.
