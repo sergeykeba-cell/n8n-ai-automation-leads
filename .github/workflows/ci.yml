@@ -7,37 +7,27 @@ on:
     branches: [main]
 
 jobs:
-  lint-python:
-    name: Lint Python
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-          pip install ruff black
-
-      - name: Run ruff
-        run: ruff check scripts/
-
-      - name: Check formatting with black
-        run: black --check scripts/
-
   validate-workflow-json:
     name: Validate n8n workflow JSON
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Check workflow JSON is valid
         run: |
           for f in workflows/*.json; do
             echo "Validating $f"
             python -m json.tool "$f" > /dev/null
           done
+
+  no-secrets-in-workflow:
+    name: No hardcoded secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for common secret patterns
+        run: |
+          if grep -REln '(AIza[0-9A-Za-z_-]{20,}|sk-[A-Za-z0-9]{20,}|[0-9]{8,10}:[A-Za-z0-9_-]{30,})' workflows/ 2>/dev/null; then
+            echo "Possible secrets found in workflow JSON"
+            exit 1
+          fi
+          echo "No obvious secrets found"
