@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-python:
+    name: Lint Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install ruff black
+
+      - name: Run ruff
+        run: ruff check scripts/
+
+      - name: Check formatting with black
+        run: black --check scripts/
+
+  validate-workflow-json:
+    name: Validate n8n workflow JSON
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check workflow JSON is valid
+        run: |
+          for f in workflows/*.json; do
+            echo "Validating $f"
+            python -m json.tool "$f" > /dev/null
+          done
